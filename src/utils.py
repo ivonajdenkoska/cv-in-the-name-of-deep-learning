@@ -16,7 +16,7 @@ def read_validation_images():
     return np.array([resize(io.imread(img_f), (IMAGE_SIZE, IMAGE_SIZE, 3)) for img_f in filenames]).astype('float32')
 
 def read_train_labels():
-    return np.loadtxt(PATH_TO_DATASET + 'labels/y_train.txt', dtype=int)
+    return np.loadtxt(fname=PATH_TO_DATASET + 'labels/y_train.txt', dtype=int, delimiter=",")
 
 def read_validation_labels():
-    return np.loadtxt(PATH_TO_DATASET + 'labels/y_validation.txt', dtype=int)
+    return np.loadtxt(fname=PATH_TO_DATASET + 'labels/y_validation.txt', dtype=int, delimiter=",")

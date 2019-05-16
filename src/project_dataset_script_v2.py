@@ -4,13 +4,14 @@ import os
 from skimage import io
 from skimage.transform import resize
 from pathlib import Path
+import shutil
 from constants import IMAGE_SIZE
 
 PATH_TO_ROOT = str(Path.cwd().parent)
 PATH_TO_DATASET = PATH_TO_ROOT + '/data/dataset/'
 
 # parameters that you should set before running this script
-filter = ['aeroplane', 'car', 'chair', 'dog', 'bird']       # select class, this default should yield 1489 training and 1470 validation images
+filter = ['aeroplane', 'cat']   # select class, this default should yield 1489 training and 1470 validation images
 voc_root_folder = PATH_TO_ROOT + "/data/VOCdevkit/"  # please replace with the location on your laptop where you unpacked the tarball
 
 # step1 - build list of filtered filenames
@@ -69,6 +70,10 @@ print('%i validation images from %i classes' %(x_val.shape[0],  y_train.shape[1]
 # you should extend the above script for the segmentation task
 # (you will need a slightly different function for building the label images)
 
+# Check if the directory already exists
+if os.path.exists(PATH_TO_DATASET):
+    shutil.rmtree(PATH_TO_DATASET)  # Delete it if it exists
+
 # Save images to disk
 try:
     if not os.path.exists(PATH_TO_DATASET):
@@ -91,5 +96,5 @@ for i, img in enumerate(x_val):
     io.imsave(name, img)
 
 # Save labels to disk
-np.savetxt(PATH_TO_DATASET + "labels/y_train.txt", y_train)
-np.savetxt(PATH_TO_DATASET + "labels/y_validation.txt", y_val)
+np.savetxt(PATH_TO_DATASET + "labels/y_train.txt", y_train.astype(int), fmt='%i', delimiter=",")
+np.savetxt(PATH_TO_DATASET + "labels/y_validation.txt", y_val.astype(int), fmt='%i', delimiter=",")
