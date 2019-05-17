@@ -10,13 +10,14 @@ import os
 PATH_TO_DATASET = str(Path.cwd().parent) + '/data/dataset/'
 PATH_TO_MODELS = str(Path.cwd().parent) + '/models/'
 
+
 def read_train_images():
     images = []
     filenames = [img for img in glob.glob(PATH_TO_DATASET + "images/train/*.jpg")]
     for i in range(0, len(filenames)):
         img_path = PATH_TO_DATASET + "images/train/img" + str(i) + ".jpg"
         images.append(resize(io.imread(img_path), (IMAGE_SIZE, IMAGE_SIZE, 3)))
-    return np.array(images)
+    return np.array(images).astype('float32')
 
 
 def read_validation_images():
@@ -25,7 +26,7 @@ def read_validation_images():
     for i in range(0, len(filenames)):
         img_path = PATH_TO_DATASET + "images/validation/img" + str(i) + ".jpg"
         images.append(resize(io.imread(img_path), (IMAGE_SIZE, IMAGE_SIZE, 3)))
-    return np.array(images)
+    return np.array(images).astype('float32')
 
 
 def read_train_labels():
