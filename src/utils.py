@@ -58,3 +58,4 @@ def read_model(name):
     # load weights into new model
     loaded_model.load_weights(PATH_TO_MODELS + name + ".h5")
     print("Loaded model from disk")
+    return loaded_model
