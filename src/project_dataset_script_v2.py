@@ -6,6 +6,8 @@ from skimage.transform import resize
 from pathlib import Path
 import shutil
 from constants import IMAGE_SIZE
+from sklearn.model_selection import train_test_split
+
 
 PATH_TO_ROOT = str(Path.cwd().parent)
 PATH_TO_DATASET = PATH_TO_ROOT + '/data/dataset/'
@@ -34,7 +36,8 @@ def build_classification_dataset(list_of_files):
     """ build training or validation set
 
     :param list_of_files: list of filenames to build trainset with
-    :return: tuple with x np.ndarray of shape (n_images, IMAGE_SIZE, IMAGE_SIZE, 3) and  y np.ndarray of shape (n_images, n_classes)
+    :return: tuple with x np.ndarray of shape (n_images, IMAGE_SIZE, IMAGE_SIZE, 3)
+             and  y np.ndarray of shape (n_images, n_classes)
     """
     temp = []
     train_labels = []
@@ -62,8 +65,12 @@ def build_classification_dataset(list_of_files):
 
 x_train, y_train = build_classification_dataset(train_files)
 print('%i training images from %i classes' %(x_train.shape[0], y_train.shape[1]))
-x_val, y_val = build_classification_dataset(val_files)
+val_images, val_labels = build_classification_dataset(val_files)
+x_val, x_test, y_val, y_test = train_test_split(val_images, val_labels, test_size=0.2, random_state=42)
+
 print('%i validation images from %i classes' %(x_val.shape[0],  y_train.shape[1]))
+print('%i test images from %i classes' %(x_test.shape[0],  y_test.shape[1]))
+
 
 # from here, you can start building your model
 # you will only need x_train and x_val for the autoencoder
@@ -82,6 +89,8 @@ try:
         os.makedirs(PATH_TO_DATASET + 'images/train')
     if not os.path.exists(PATH_TO_DATASET + 'images/validation'):
         os.makedirs(PATH_TO_DATASET + 'images/validation')
+    if not os.path.exists(PATH_TO_DATASET + 'images/test'):
+        os.makedirs(PATH_TO_DATASET + 'images/test')
     if not os.path.exists(PATH_TO_DATASET + 'labels'):
         os.makedirs(PATH_TO_DATASET + 'labels')
 except OSError:
@@ -95,6 +104,11 @@ for i, img in enumerate(x_val):
     name = PATH_TO_DATASET + 'images/validation/img' + str(i) + '.jpg'
     io.imsave(name, img)
 
+for i, img in enumerate(x_test):
+    name = PATH_TO_DATASET + 'images/test/img' + str(i) + '.jpg'
+    io.imsave(name, img)
+
 # Save labels to disk
 np.savetxt(PATH_TO_DATASET + "labels/y_train.txt", y_train.astype(int), fmt='%i', delimiter=",")
 np.savetxt(PATH_TO_DATASET + "labels/y_validation.txt", y_val.astype(int), fmt='%i', delimiter=",")
+np.savetxt(PATH_TO_DATASET + "labels/y_test.txt", y_test.astype(int), fmt='%i', delimiter=",")

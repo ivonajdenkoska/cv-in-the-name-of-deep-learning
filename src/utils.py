@@ -29,12 +29,25 @@ def read_validation_images():
     return np.array(images).astype('float32')
 
 
+def read_test_images():
+    images = []
+    filenames = [img for img in glob.glob(PATH_TO_DATASET + "images/test/*.jpg")]
+    for i in range(0, len(filenames)):
+        img_path = PATH_TO_DATASET + "images/test/img" + str(i) + ".jpg"
+        images.append(resize(io.imread(img_path), (IMAGE_SIZE, IMAGE_SIZE, 3)))
+    return np.array(images).astype('float32')
+
+
 def read_train_labels():
     return np.loadtxt(fname=PATH_TO_DATASET + 'labels/y_train.txt', dtype=int, delimiter=",")
 
 
 def read_validation_labels():
     return np.loadtxt(fname=PATH_TO_DATASET + 'labels/y_validation.txt', dtype=int, delimiter=",")
+
+
+def read_test_labels():
+    return np.loadtxt(fname=PATH_TO_DATASET + 'labels/y_test.txt', dtype=int, delimiter=",")
 
 
 def save_model(model, name):
