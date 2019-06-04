@@ -94,7 +94,7 @@ np.savetxt(PATH_TO_DATASET + "labels/y_validation.txt", y_val.astype(int), fmt='
 np.savetxt(PATH_TO_DATASET + "labels/y_test.txt", y_test.astype(int), fmt='%i', delimiter=",")
 
 ### SEGMENTATION
-filter.append("background")
+filter.insert(0, "background")
 n_classes = len(filter)
 
 # Use this as a lookup for the colors and the classes
