@@ -11,7 +11,7 @@ from sklearn.model_selection import train_test_split
 from create_folders import *
 
 # parameters that you should set before running this script
-filter = ['aeroplane', 'horse', 'boat', 'bird']   # select class, this default should yield 1489 training and 1470 validation images
+filter = ['aeroplane', 'boat']   # select class, this default should yield 1489 training and 1470 validation images
 voc_root_folder = PATH_TO_ROOT + "/data/VOCdevkit/"  # please replace with the location on your laptop where you unpacked the tarball
 
 # step1 - build list of filtered filenames
@@ -177,7 +177,7 @@ def get_segmentation_labels(segmentations):
     for image in segmentations:
         img = voc_label_indices(image, colormap2label)
         img_stacked = np.dstack([img.asnumpy(), img.asnumpy(), img.asnumpy()])
-        img_mod = get_segmentation_array(img_stacked, n_classes, 224, 224)
+        img_mod = get_segmentation_array(img_stacked, n_classes, IMAGE_SIZE, IMAGE_SIZE)
         seg_labels.append(img_mod)
     return seg_labels
 
@@ -245,10 +245,9 @@ np.save(outfile_test, test_seg_labels)
 print("Segmentation images and labels saved to disk")
 
 # AUGMENTED IMAGES
-def random_shift_scale_rotate(image, mask, angle, scale, aspect, shift_dx, shift_dy,
+def random_shift_scale_rotate(image, mask, label, angle, scale, aspect, shift_dx, shift_dy,
                               borderMode=cv2.BORDER_CONSTANT, u=0.5):
     if np.random.random() < u:
-
         height, width, channels = image.shape
 
         sx = scale * aspect / (aspect ** 0.5)
@@ -269,22 +268,26 @@ def random_shift_scale_rotate(image, mask, angle, scale, aspect, shift_dx, shift
         mat = cv2.getPerspectiveTransform(box0, box1)
 
         image = cv2.warpPerspective(image, mat, (width, height), flags=cv2.INTER_LINEAR,
-                                    borderMode=borderMode, borderValue=(0, 0, 0, 0))
+                                    borderMode=borderMode, borderValue=(1, 1, 1, 1))
 
         mask = cv2.warpPerspective(mask, mat, (width, height), flags=cv2.INTER_LINEAR,
-                                   borderMode=borderMode, borderValue=(0, 0, 0, 0))
-    return image, mask
+                                   borderMode=borderMode, borderValue=(1, 1, 1, 1))
+
+        label = cv2.warpPerspective(label, mat, (width, height), flags=cv2.INTER_LINEAR,
+                                    borderMode=borderMode, borderValue=(1, 1, 1, 1))
+    return image, mask, label
 
 
-def random_horizontal_flip(image, mask, u=0.5):
+def random_horizontal_flip(image, mask, label, u=0.5):
     if np.random.random() < u:
         image = cv2.flip(image, 1)
         mask = cv2.flip(mask, 1)
+        label = cv2.flip(label, 1)
 
-    return image, mask
+    return image, mask, label
 
 
-def augment_img(img, mask):
+def augment_img(img, mask, label):
     rotate_limit = (-45, 45)
     aspect_limit = (0, 0)
     scale_limit = (-0.1, 0.1)
@@ -295,31 +298,28 @@ def augment_img(img, mask):
     scale = np.random.uniform(1 + scale_limit[0], 1 + scale_limit[1])
     aspect = np.random.uniform(1 + aspect_limit[0], 1 + aspect_limit[1])
 
-    img, mask = random_shift_scale_rotate(img, mask, angle, scale, aspect, shift_dx, shift_dy)
-    img, mask = random_horizontal_flip(img, mask)
-    return img, mask
+    img, mask, label = random_shift_scale_rotate(img, mask, label, angle, scale, aspect, shift_dx, shift_dy)
+    img, mask, label = random_horizontal_flip(img, mask, label)
+    return img, mask, label
 
 
-def augment_images(features, segmentations):
-    augmented_features, augmented_segmentations = [], []
-    for feature, segmentation in zip(features, segmentations):
-        for i in range(10):
-            img, mask = augment_img(feature.asnumpy(), segmentation.asnumpy())
-            img = resize(img, (IMAGE_SIZE, IMAGE_SIZE))
-            mask = resize(mask, (IMAGE_SIZE, IMAGE_SIZE))
+def augment_images(features, segmentations, labels):
+    augmented_features, augmented_segmentations, augmented_labels = [], [], []
+    for feature, segmentation, label in zip(features, segmentations, labels):
+        for i in range(5):
+            img, mask, label = augment_img(feature, segmentation, label)
             augmented_features.append(img)
             augmented_segmentations.append(mask)
-    return augmented_features, augmented_segmentations
+            augmented_labels.append(label)
+    return augmented_features, augmented_segmentations, augmented_labels
 
 
-train_augmented_features, train_augmented_segmentations = augment_images(train_features_raw, train_segmentations_raw)
-validation_augmented_features, validation_augmented_segmentations = augment_images(validation_features_raw, validation_segmentations_raw)
-test_augmented_features, test_augmented_segmentations = augment_images(test_features_raw, test_segmentations_raw)
-
-train_seg_labels_augmented = get_segmentation_labels(train_augmented_segmentations)
-val_seg_labels_augmented = get_segmentation_labels(validation_augmented_segmentations)
-test_seg_labels_augmented = get_segmentation_labels(test_augmented_segmentations)
-
+train_augmented_features, train_augmented_segmentations, train_seg_labels_augmented = augment_images(
+    train_features_resized, train_segmentations_resized, train_seg_labels)
+validation_augmented_features, validation_augmented_segmentations, val_seg_labels_augmented = augment_images(
+    validation_features_resized, validation_segmentations_resized, val_seg_labels)
+test_augmented_features, test_augmented_segmentations, test_seg_labels_augmented = augment_images(
+    test_features_resized, test_segmentations_resized, test_seg_labels)
 
 for i, img in enumerate(train_augmented_features):
     name = PATH_TO_AUGMENTED_IMAGES + 'train/img' + str(i) + '.jpg'
