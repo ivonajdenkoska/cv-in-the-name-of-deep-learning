@@ -11,7 +11,7 @@ from sklearn.model_selection import train_test_split
 from create_folders import *
 
 # parameters that you should set before running this script
-filter = ['aeroplane', 'boat']   # select class, this default should yield 1489 training and 1470 validation images
+filter = ['aeroplane', 'cat']   # select class, this default should yield 1489 training and 1470 validation images
 voc_root_folder = PATH_TO_ROOT + "/data/VOCdevkit/"  # please replace with the location on your laptop where you unpacked the tarball
 
 # step1 - build list of filtered filenames
