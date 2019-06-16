@@ -3,13 +3,12 @@ from pathlib import Path
 import numpy as np
 from skimage import io
 from skimage.transform import resize
-from constants import IMAGE_SIZE
 from keras.models import model_from_json
 import os
 
-PATH_TO_DATASET = str(Path.cwd().parent) + '/data/dataset/'
+PATH_TO_DATASET = str(Path.cwd().parent) + '/data/dataset_resampled/'
 PATH_TO_MODELS = str(Path.cwd().parent) + '/models/'
-
+IMAGE_SIZE=128
 
 def read_train_images():
     images = []
