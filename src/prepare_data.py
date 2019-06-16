@@ -149,6 +149,11 @@ def build_segmentation_dataset(list_of_files):
 
 
 def convert_and_resize(data):
+    '''
+    Convert the data into numpy array and resize the images to (IMAGE_SIZE, IMAGE_SIZE)
+    :param data: The data containing the images to be resized
+    :return: numpy array with resized images
+    '''
     converted_data = []
     for image in data:
         img = image.asnumpy()
@@ -158,12 +163,26 @@ def convert_and_resize(data):
 
 
 def voc_label_indices(colormap, colormap2label):
+    '''
+    Convert an RGB image to image with labels (numbers) for each color
+    :param colormap: a segmented image where every class is represented by different color
+    :param colormap2label: NDArray containing the label for each color
+    :return: a signle matrix containing the labels for each pixel in the image
+    '''
     colormap = colormap.astype('int32')
     idx = ((colormap[:, :, 0] * 256 + colormap[:, :, 1]) * 256 + colormap[:, :, 2])
     return colormap2label[idx]
 
 
 def get_segmentation_array(img, nClasses, width, height):
+    '''
+    Convert an RGB image with shape [width, height, 3] to nClasses binary matrices
+    :param img: a segmented image
+    :param nClasses: number of classes
+    :param width: width of the image
+    :param height: height of the image
+    :return: binary matrices for every class
+    '''
     seg_labels = np.zeros((height, width , nClasses))
     img = cv2.resize(img, (width, height))
     img = img[:, :, 0]
@@ -173,6 +192,11 @@ def get_segmentation_array(img, nClasses, width, height):
 
 
 def get_segmentation_labels(segmentations):
+    '''
+    For each segmented image create binary matrices for each class
+    :param segmentations: list of segmentations
+    :return: labels for each segmented image that contain binary matrices for every class
+    '''
     seg_labels = []
     for image in segmentations:
         img = voc_label_indices(image, colormap2label)
@@ -191,7 +215,6 @@ validation_features_raw, test_features_raw, validation_segmentations_raw, test_s
 print(len(train_features_raw))
 print(len(validation_features_raw))
 print(len(test_features_raw))
-
 
 train_features_resized = convert_and_resize(train_features_raw)
 train_segmentations_resized = convert_and_resize(train_segmentations_raw)
@@ -247,6 +270,20 @@ print("Segmentation images and labels saved to disk")
 # AUGMENTED IMAGES
 def random_shift_scale_rotate(image, mask, label, angle, scale, aspect, shift_dx, shift_dy,
                               borderMode=cv2.BORDER_CONSTANT, u=0.5):
+    '''
+    Perform random augmentations on the given image, mask and label
+    :param image: the image for which to generate augmentations
+    :param mask: the segmented image
+    :param label: the binary matrices
+    :param angle: the angle by which to rotate the image
+    :param scale: the scale
+    :param aspect: aspect ratio
+    :param shift_dx: how much to shift the image in x direction
+    :param shift_dy: how much to shift the image in y direction
+    :param borderMode: pixel extrapolation method
+    :param u: a number
+    :return: randomly shifted, scaled and rotated image, mask and label
+    '''
     if np.random.random() < u:
         height, width, channels = image.shape
 
@@ -279,6 +316,14 @@ def random_shift_scale_rotate(image, mask, label, angle, scale, aspect, shift_dx
 
 
 def random_horizontal_flip(image, mask, label, u=0.5):
+    '''
+    Perform a random horizontal flip
+    :param image: the original image
+    :param mask: the segmented image
+    :param label: the binary matrices
+    :param u: a number
+    :return: horizontally flipped image, mask and label
+    '''
     if np.random.random() < u:
         image = cv2.flip(image, 1)
         mask = cv2.flip(mask, 1)
@@ -288,6 +333,13 @@ def random_horizontal_flip(image, mask, label, u=0.5):
 
 
 def augment_img(img, mask, label):
+    '''
+    Augment the given image
+    :param img: the image to be augmented
+    :param mask: the corresponding segmented image
+    :param label: the corresponding binary matrices
+    :return: augmented image, mask and label
+    '''
     rotate_limit = (-45, 45)
     aspect_limit = (0, 0)
     scale_limit = (-0.1, 0.1)
@@ -304,6 +356,13 @@ def augment_img(img, mask, label):
 
 
 def augment_images(features, segmentations, labels):
+    '''
+    Generate 5 augmented  images for each image in the list
+    :param features: the original images
+    :param segmentations: the corresponding segmentations
+    :param labels: the corresponding binary matrices
+    :return: list of augmented images, segmentations and labels
+    '''
     augmented_features, augmented_segmentations, augmented_labels = [], [], []
     for feature, segmentation, label in zip(features, segmentations, labels):
         for i in range(5):

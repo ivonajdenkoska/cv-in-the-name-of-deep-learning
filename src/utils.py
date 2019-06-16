@@ -11,6 +11,10 @@ PATH_TO_MODELS = str(Path.cwd().parent) + '/models/'
 IMAGE_SIZE=128
 
 def read_train_images():
+    '''
+    Reads the training images stored locally.
+    :return: numpy array of the training images
+    '''
     images = []
     filenames = [img for img in glob.glob(PATH_TO_DATASET + "images/train/*.jpg")]
     for i in range(0, len(filenames)):
@@ -20,6 +24,10 @@ def read_train_images():
 
 
 def read_validation_images():
+    '''
+    Reads the validation images stored locally.
+    :return: numpy array of the validation images
+    '''
     images = []
     filenames = [img for img in glob.glob(PATH_TO_DATASET + "images/validation/*.jpg")]
     for i in range(0, len(filenames)):
@@ -29,6 +37,10 @@ def read_validation_images():
 
 
 def read_test_images():
+    '''
+     Reads the test images stored locally.
+    :return: numpy array of the test images
+    '''
     images = []
     filenames = [img for img in glob.glob(PATH_TO_DATASET + "images/test/*.jpg")]
     for i in range(0, len(filenames)):
@@ -38,18 +50,35 @@ def read_test_images():
 
 
 def read_train_labels():
+    '''
+    Reads the training labels stored locally.
+    :return: numpy array containing the train labels
+    '''
     return np.loadtxt(fname=PATH_TO_DATASET + 'labels/y_train.txt', dtype=int, delimiter=",")
 
 
 def read_validation_labels():
+    '''
+    Reads the validation labels stored locally.
+    :return:  numpy array containing the validation labels
+    '''
     return np.loadtxt(fname=PATH_TO_DATASET + 'labels/y_validation.txt', dtype=int, delimiter=",")
 
 
 def read_test_labels():
+    '''
+    Reads the test labels stored locally.
+    :return:  numpy array containing the test labels
+    '''
     return np.loadtxt(fname=PATH_TO_DATASET + 'labels/y_test.txt', dtype=int, delimiter=",")
 
 
 def save_model(model, name):
+    '''
+    Saves the given model by the given name locally.
+    :param model: The model to be saved
+    :param name: The name by which the model should be saved
+    '''
     # serialize model to JSON
     if not os.path.exists(PATH_TO_MODELS):
         os.makedirs(PATH_TO_MODELS)
@@ -62,6 +91,11 @@ def save_model(model, name):
 
 
 def read_model(name):
+    '''
+    Reads a model stored locally with the given name.
+    :param name: Name of the model to be read
+    :return: the loaded model
+    '''
     # load json and create model
     json_file = open(PATH_TO_MODELS + name + '.json', 'r')
     loaded_model_json = json_file.read()
