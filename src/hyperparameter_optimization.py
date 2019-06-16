@@ -11,17 +11,16 @@ def get_model(x_train, y_train, x_val, y_val, params):
     :return: Trained model and model's history object
     """
     input_img = Input(shape=(x, y, inChannel))
-    conv1 = Conv2D(32, (3, 3), activation=params['activation'], padding='same')(input_img)
+    conv1 = Conv2D(256, (3, 3), activation=params['activation'], padding='same')(input_img)
     pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)
-    conv2 = Conv2D(64, (3, 3), activation=params['activation'], padding='same')(pool1)
+    conv2 = Conv2D(128, (3, 3), activation=params['activation'], padding='same')(pool1)
     pool2 = MaxPooling2D(pool_size=(2, 2))(conv2)
-    conv3 = Conv2D(128, (3, 3), activation=params['activation'], padding='same')(pool2)
-
-    drop1 = Dropout(rate=params['dropout'])(conv3)
+    conv3 = Conv2D(64, (3, 3), activation=params['activation'], padding='same')(pool2)
+    pool3 = MaxPooling2D(pool_size=(2, 2))(conv3)
+    conv4 = Conv2D(32, (3, 3), activation=params['activation'], padding='same')(pool3)
+    drop1 = Dropout(rate=params['dropout'])(conv4)
     flat = Flatten()(drop1)
-    den = Dense(128, activation=params['activation'])(flat)
-    last = Dense(num_classes, activation=params['last_activation'])(den)
-
+    last = Dense(num_classes, activation=params['last_activation'])(flat)
     full_model = Model(input_img, last)
 
     full_model.compile(optimizer=params['optimizer'],
