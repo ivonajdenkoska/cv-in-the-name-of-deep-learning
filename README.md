@@ -1,6 +1,8 @@
 # In the Name of Deep Learning
 
-The aim of this project is to explore the application of Deep Learning in the field of Computer Vision. The project work is divided in three main sections: Autoencoders, Classification and Segmentation. The whole implementation of the project is done in Python using the following libraries: Keras, Numpy, Pandas, Scikit Learn and Talos.
+The aim of this project is to explore the application of Deep Learning in the field of Computer Vision, as part of the [Computer Vision course](https://onderwijsaanbod.kuleuven.be/2019/syllabi/e/H02A5AE.htm#activetab=doelstellingen_idm18484000) @ KU Leuven, for the academic year 2018/2019.
+
+The project work is divided in three main sections: Autoencoders, Classification and Segmentation. The whole implementation of the project is done in Python using the following libraries: Keras, Numpy, Pandas, Scikit Learn and Talos.
 
 The dataset used for this project is a subset of the famous PASCAL VOC-2009, which is well-known as standardized image dataset for object class recognition.
 
